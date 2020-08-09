@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/models/vWaiter/cartItem.dart';
 import 'package:hotel_management_system/models/vWaiter/item.dart';
-import 'package:hotel_management_system/services/auth.dart';
 import 'bottom_nav_bar.dart';
 import 'cart_tile.dart';
 import 'customer_seat.dart';
@@ -18,7 +17,6 @@ class Cart extends StatefulWidget {
 
 class _CartState extends State<Cart> {
 
-  final AuthService auth = AuthService();
 
   List<num> bill = [];
   @override
@@ -43,6 +41,7 @@ class _CartState extends State<Cart> {
     total = subtotal+serviceCharges;
     return [subtotal, serviceCharges, total];
   }
+  
   
   @override
   Widget build(BuildContext context) {
@@ -215,6 +214,7 @@ class _CartState extends State<Cart> {
                         children: <Widget>[
                           Text(
                             "Rs. ${bill[0].toString()}",
+                            key: Key('subtotal'),
                             style: TextStyle(
                               color: Colors.indigo[900],
                               fontWeight: FontWeight.w800,
@@ -224,6 +224,7 @@ class _CartState extends State<Cart> {
                           SizedBox(height: 20.0),
                           Text(
                             "Rs. ${bill[1].toString()}   (5%)",
+                            key: Key('service'),
                             style: TextStyle(
                               color: Colors.indigo[900],
                               fontWeight: FontWeight.w800,
@@ -233,6 +234,7 @@ class _CartState extends State<Cart> {
                           SizedBox(height: 20.0),
                           Text(
                             "Rs. ${bill[2].toString()}",
+                            key: Key('total'),
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.w800,
@@ -248,13 +250,15 @@ class _CartState extends State<Cart> {
 
                   //place order button
                   Container(
+                   
                     width: MediaQuery.of(context).size.width /2,
                     color: Colors.white,
                     height: 50.0,
                     child: RaisedButton(
+                      key: Key('placebutton'),
                       color: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(18.0),
+                        borderRadius: BorderRadius.circular(18.0),
                         side: BorderSide(
                           color: Colors.red[900], 
                           width: 2.0

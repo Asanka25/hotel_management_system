@@ -1,9 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/models/vWaiter/cartItem.dart';
 import 'package:hotel_management_system/models/vWaiter/item.dart';
 import 'package:hotel_management_system/models/vWaiter/menu.dart';
 import 'package:hotel_management_system/screens/virtual_waiter/home_menu_tile.dart';
-import 'package:hotel_management_system/services/auth.dart';
 import 'bottom_nav_bar.dart';
 import 'cart.dart';
 
@@ -11,8 +11,9 @@ import 'cart.dart';
 class ItemsScreen extends StatefulWidget {
   final Item item;
   final List<Menu> menuList;
+  final CachedNetworkImage image;
 
-  ItemsScreen({this.item, this.menuList});
+  ItemsScreen({this.item, this.menuList, this.image});
   @override
   _ItemsScreenState createState() => _ItemsScreenState();
 }
@@ -20,7 +21,6 @@ class ItemsScreen extends StatefulWidget {
 class _ItemsScreenState extends State<ItemsScreen> {
   int quantity;
 
-  final AuthService auth = AuthService();
 
   void add(){
     quantity++;
@@ -63,6 +63,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
             SizedBox(height: 20.0),
               Container(
                 height: 65.0,
+                //display the menu list
                 child: ListView.builder(
                   itemCount: widget.menuList.length,
                   scrollDirection: Axis.horizontal,
@@ -104,11 +105,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
               children: <Widget>[
                 Container(
                   height: MediaQuery.of(context).size.height / 3.2,
-                  child: FadeInImage.assetNetwork(
-                    placeholder: 'assets/loader.gif',
-                    image: widget.item.image,
-                    fit: BoxFit.fill,
-                  ),
+                  child: widget.image,
                 ),
                 Row(
                   children: <Widget>[
@@ -153,7 +150,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
                               ),
                               Column(
                                 children: <Widget>[
+                                  //increase quantity
                                   IconButton(
+                                    key: Key('increase-quantity'),
                                     icon: Icon(
                                       Icons.add,
                                       color: Colors.red[900],
@@ -162,7 +161,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
                                       add();
                                     })
                                   ),
+                                  //decrease quantity
                                   IconButton(
+                                    key: Key('decrease-quantity'),
                                     icon: Icon(
                                       Icons.remove,
                                       color: Colors.red[900],
@@ -186,6 +187,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   color: Colors.white,
                   height: 50.0,
                   child: RaisedButton(
+                    key: Key('add-item-to-cart'),
                     color: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: new BorderRadius.circular(18.0),
@@ -213,25 +215,33 @@ class _ItemsScreenState extends State<ItemsScreen> {
                         ),
                       ],
                     ),
-                    
+                    //add item to cart if qunatity is not zero
                     onPressed: (){
                       if(quantity==0){ 
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {                   
                             return AlertDialog(
+                              backgroundColor: Colors.lightBlue[300],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20.0))
+                              ),
                               title: Text(
                                 "Please specify a quantity",
                                 style: TextStyle(
-                                  color: Colors.indigo[900],
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 22,
                                 ),
                               ),
                               actions: [
                                 FlatButton(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(100.0))
+                                  ),
+                                  color: Colors.white,
                                   child: Text(
-                                    "Got it",
+                                    "OK",
                                     style: TextStyle(
                                       color: Colors.cyan[400],
                                       fontWeight: FontWeight.w500,
@@ -251,6 +261,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                         setState((){
                           Cart.cartItems.add(CartItem(
                             item: widget.item,
+                            image: widget.image,
                             quantity: quantity,
                           ));
                         });

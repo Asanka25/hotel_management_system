@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:hotel_management_system/services/vwaiter_database2.dart';
 import 'package:flutter/services.dart';
+import 'package:hotel_management_system/services/vwaiter_database2.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart'; 
 import 'bottom_nav_bar.dart';
+
+class NameFieldValidator {
+  static String validate(String value) {
+    return value.isEmpty ? 'Please enter a name' : null;
+  }
+}
+
+class FeedbackFieldValidator {
+  static String validate(String value) {
+    return value.isEmpty ? 'Please enter your feedback' : null;
+  }
+}
 
 class CustomerFeedback extends StatefulWidget {
   @override
@@ -12,7 +24,7 @@ class CustomerFeedback extends StatefulWidget {
 class _CustomerFeedbackState extends State<CustomerFeedback> {
   final _formKey = GlobalKey<FormState>();
 
-    // form values
+  // form values
   String _customerName;
   String _feedback;
   double rating = 0;
@@ -63,6 +75,7 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                 )
               ),
             ),
+          //form to get feedback
           Form(
             key: _formKey,
             autovalidate: true,
@@ -88,12 +101,13 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                   ),
                   SizedBox(height: 20.0),
                   TextFormField(
+                    key: Key('name'),
                     decoration: const InputDecoration(
                         icon: const Icon(Icons.person),
                         hintText: 'Enter your first and last name',
                         labelText: 'Name',
                     ),
-                    validator: (val) => val.isEmpty ? 'Please enter a name' : null,
+                    validator: NameFieldValidator.validate,
                     onChanged: (val) => setState(() => _customerName = val),
                   ),
                   SizedBox(height: 50.0),
@@ -115,6 +129,7 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                   ),
                   SizedBox(height: 20.0),
                   TextFormField(
+                    key: Key('feedback'),
                     keyboardType: TextInputType.multiline,
                     maxLines: null,
                     decoration: const InputDecoration(
@@ -122,7 +137,7 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                         hintText: 'Enter your feedback',
                         labelText: 'Feedback',
                     ),
-                    validator: (val) => val.isEmpty ? 'Please enter your feedback' : null,
+                    validator: FeedbackFieldValidator.validate,
                     onChanged: (val) => setState(() => _feedback = val),
                   ),
                   SizedBox(height: 50.0),
@@ -161,8 +176,9 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                   ),
                   
                   SizedBox(height: 40.0),
-
+                  //submit feedback button
                   RaisedButton(
+                    key: Key('submitfeedbackbutton'),
                     color: Colors.cyan[400],
                     child: Text(
                       'Submit',
@@ -177,11 +193,33 @@ class _CustomerFeedbackState extends State<CustomerFeedback> {
                       if(_formKey.currentState.validate()){
                         VWaiterDatabase2().submitFeedback(_customerName, _feedback, rating);
                         Navigator.popUntil(context, ModalRoute.withName('/'));
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            Future.delayed(Duration(seconds: 5), () {
+                              Navigator.of(context).pop(true);
+                            });
+                            return AlertDialog(
+                              backgroundColor: Colors.lightBlue,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(Radius.circular(50.0))
+                              ),
+                              title: Text(
+                                "Thank you for your feedback",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            );
+                        });                       
                       }
                     }
                   ),
                   SizedBox(height: 20,),
                   RaisedButton(
+                    key: Key('skipfeedbackbutton'),
                     color: Colors.grey[100],
                     child: Text(
                       'Skip',

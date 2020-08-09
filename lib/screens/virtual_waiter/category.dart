@@ -1,20 +1,21 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/models/vWaiter/item.dart';
 import 'package:hotel_management_system/models/vWaiter/menu.dart';
 import 'package:hotel_management_system/screens/virtual_waiter/home_menu_tile.dart';
-import 'package:hotel_management_system/services/auth.dart';
 import 'package:hotel_management_system/services/vwaiter_database2.dart';
-import 'package:hotel_management_system/shades/loading.dart';
+import 'package:hotel_management_system/shared/loading.dart';
 import 'bottom_nav_bar.dart';
 import 'item_tile.dart';
 
 
 class CategoriesScreen extends StatefulWidget {
-  final String category;
+
   final Menu menu;
+  final int index;
 
 
-  CategoriesScreen({this.category, this.menu});
+  CategoriesScreen({this.menu, this.index});
   @override
   _CategoriesScreenState createState() => _CategoriesScreenState();
 }
@@ -26,7 +27,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   List<String> catItemsIdList = [];
   List<Item> categoryItemList = [];
   List<Item> itemList2;
-  final AuthService auth = AuthService();
 
   @override
   initState() {
@@ -106,11 +106,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                         Container(
                           height: MediaQuery.of(context).size.height / 2.5,
                           width: MediaQuery.of(context).size.width,
-                          child: FadeInImage.assetNetwork(
-                            placeholder: 'assets/loader.gif',
-                            image: menu.image,
+                          child:CachedNetworkImage(
+                            imageUrl: menu.image,
+                            placeholder:(context, url) => Image.asset('assets/catloader.gif'),
+                            errorWidget: (context, url, error) => Image.asset('assets/catloader.gif'),
                             fit: BoxFit.fill,
-                            // height: 400,
                           ),
                         ),
                         
@@ -120,11 +120,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           height: MediaQuery.of(context).size.height / 4,
                           width: MediaQuery.of(context).size.width,
                           child: ListView.builder(
+                            key: Key('category-list-${widget.index}'),
                             scrollDirection: Axis.vertical,
                             itemCount: itemList.length,
                             shrinkWrap: true,
                             itemBuilder: (context, index) {
                             return ItemTile(
+                              index: index,
                               item: itemList[index],
                               menuList: menuList
                             );

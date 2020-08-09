@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_management_system/screens/virtual_waiter/shared_preferences.dart';
 import 'package:hotel_management_system/services/vwaiter_database2.dart';
 import 'package:hotel_management_system/models/vWaiter/restaurantTable.dart';
-import 'package:hotel_management_system/shades/constants.dart';
-import 'package:hotel_management_system/shades/loading.dart';
+import 'package:hotel_management_system/shared/constants.dart';
 
 
 class Settings extends StatefulWidget {
@@ -18,23 +17,6 @@ class _SettingsState extends State<Settings> {
 
   SharedPref sharedPref = SharedPref();
   final _formKey = GlobalKey<FormState>();
-
-  loadSharedPrefs() async {
-    try {
-      RestaurantTable table = RestaurantTable.fromJson(await sharedPref.read("table"));
-      setState(() {
-        Settings.table=table;
-      });
-    } catch (Excepetion) {
-      Settings.table=RestaurantTable(tableNo: 0, seats: 0);
-    }
-  }
-
-  @override
-  initState() {
-    loadSharedPrefs();
-    super.initState();
-  }
  
   @override
   Widget build(BuildContext context) {  
@@ -42,7 +24,7 @@ class _SettingsState extends State<Settings> {
       stream: VWaiterDatabase2().tables,
       builder: (context, snapshot) {
         if(!snapshot.hasData){
-          return Loading();
+          return Image.asset('assets/setloader.gif');
         }
         List<RestaurantTable> tables = snapshot.data;
         return Form(
@@ -59,6 +41,7 @@ class _SettingsState extends State<Settings> {
               ),
               SizedBox(height: 50.0),
               DropdownButtonFormField(
+                key: Key('vwaiter-dropdown'),
                 hint: Text("Select a table"),
                 decoration: textInputDecoration,  //from constants.dart
                 items: tables.map((table) {
@@ -83,6 +66,7 @@ class _SettingsState extends State<Settings> {
               ),
               SizedBox(height: 50.0),
               RaisedButton(
+                key: Key('save-settings'),
                 color: Colors.cyan[400],
                 child: Text(
                   'Save',

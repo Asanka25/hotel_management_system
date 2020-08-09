@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:hotel_management_system/models/vWaiter/menu.dart';
+import 'package:hotel_management_system/models/vWaiter/restaurantTable.dart';
+import 'package:hotel_management_system/screens/virtual_waiter/shared_preferences.dart';
 import 'package:hotel_management_system/services/auth.dart';
 import 'package:hotel_management_system/services/vwaiter_database2.dart';
 import 'package:hotel_management_system/utilities/carousal.dart';
@@ -10,11 +12,38 @@ import 'menu_list.dart';
 import 'package:provider/provider.dart';
 import 'settings.dart';
 
-class VwaiterHome extends StatelessWidget {
+class VwaiterHome extends StatefulWidget {
+  @override
+  _VwaiterHomeState createState() => _VwaiterHomeState();
+}
+
+class _VwaiterHomeState extends State<VwaiterHome> {
   final AuthService _auth = AuthService();
+  SharedPref sharedPref = SharedPref();
+
+  //load table data from shared preferences
+  loadSharedPrefs() async {
+    try {
+      RestaurantTable table = RestaurantTable.fromJson(await sharedPref.read("table"));
+      setState(() {
+        Settings.table=table;
+      });
+    } catch (Excepetion) {
+      Settings.table=RestaurantTable(tableNo: 0, seats: 0);
+    }
+  }
+
+  @override
+  initState() {
+    loadSharedPrefs().then((value){
+      print('Table loaded');
+    });
+    
+    super.initState();
+  }
 
   Widget build(BuildContext context) {
-
+    //bottom panel for virtual waiter settings
     void _showSettingsPanel() {
       showModalBottomSheet(context: context, builder: (context) {
         return Container(
@@ -24,10 +53,11 @@ class VwaiterHome extends StatelessWidget {
         );
       });
     }
-
+    //provides menu categories to child widgets
     return StreamProvider<List<Menu>>.value(
       value: VWaiterDatabase2().menu,
       child: Scaffold(
+        resizeToAvoidBottomPadding: false,
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -35,6 +65,7 @@ class VwaiterHome extends StatelessWidget {
           leading: Builder(
             builder: (BuildContext context) {
               return PopupMenuButton<Widget>(
+                key: Key('logout'),
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     child: FlatButton.icon(
@@ -55,13 +86,16 @@ class VwaiterHome extends StatelessWidget {
             },
           ),
           actions: <Widget>[
-
-            GestureDetector(
-              child: Icon(
-                Icons.settings,
-                color: Colors.grey[500],
-                ),
-              onTap: () => _showSettingsPanel(),
+            Tooltip(
+              message: "Virtual Waiter Settings",
+              child: GestureDetector(
+                key: Key('vwaiter-settings'),
+                child: Icon(
+                  Icons.settings,              
+                  color: Colors.grey[500],
+                  ),
+                onTap: () => _showSettingsPanel(),
+              ),
             ),
           ]
         ),

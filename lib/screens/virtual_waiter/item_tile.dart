@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hotel_management_system/models/vWaiter/item.dart';
 import 'package:hotel_management_system/models/vWaiter/menu.dart';
 import 'package:flutter/material.dart';
@@ -6,10 +7,12 @@ import 'package:hotel_management_system/screens/virtual_waiter/item.dart';
 class ItemTile extends StatefulWidget {
   final Item item;
   final List<Menu> menuList;
+  final int index;
 
   ItemTile({
     @required this.item,
     this.menuList,
+    this.index
     });
 
   @override
@@ -17,16 +20,25 @@ class ItemTile extends StatefulWidget {
 }
 
 class _ItemTileState extends State<ItemTile> {
-  String image;
 
   @override
   Widget build(BuildContext context) {
+    // cached network image to set item image
+    var image = CachedNetworkImage(
+      imageUrl: widget.item.image,
+      placeholder:(context, url) => Image.asset('assets/setloader.gif'),
+      errorWidget: (context, url, error) => Image.asset('assets/setloader.gif'),
+      fit: BoxFit.fill,
+    );
+
     return InkWell(
+    key: Key('item-${widget.index}'),
     onTap: (){
+      print('item-${widget.index}');
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (BuildContext context){
-            return ItemsScreen(item: widget.item, menuList: widget.menuList);
+            return ItemsScreen(item: widget.item, menuList: widget.menuList, image: image);
           },
         ),
       );
@@ -40,7 +52,12 @@ class _ItemTileState extends State<ItemTile> {
             leading: CircleAvatar(
             radius: 40.0,
             backgroundColor: Colors.white,
-            backgroundImage: NetworkImage(widget.item.image),
+            child: ClipOval(child:CachedNetworkImage(
+              imageUrl: widget.item.image,
+              placeholder:(context, url) => Image.asset('assets/miniloader.gif'),
+              errorWidget: (context, url, error) => Image.asset('assets/miniloader.gif'),
+              fit: BoxFit.fill,
+            ),),
             ),
             title:Text(
               widget.item.name,
